@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -9,6 +10,11 @@ import (
 	"os"
 	"strconv"
 )
+
+// CafeManager struct
+type CafeManager struct {
+	Cafes []Cafeteria
+}
 
 // Cafeteria struct
 type Cafeteria struct {
@@ -57,19 +63,37 @@ func (cafeteria *Cafeteria) AddCoffee(coffee Coffee, response *Coffee) error {
 	return nil
 }
 
+func (cafe *Cafeteria) Rename(name string, status *string) error {
+	cafe.Name = name
+	*status = cafe.Name
+	return nil
+}
+
+func (cafeteria *Cafeteria) GetName(_ string, resp *string) error {
+	*resp = cafeteria.Name
+	return nil
+}
+
+func (cm *CafeManager) OpenCafe(name string, response *string) error {
+	for _, v := range cm.Cafes {
+		if v.Name == name {
+			*response = "fail"
+			return errors.New("OOps cafe with this name already exists")
+		}
+	}
+	cm.Cafes = append(cm.Cafes, Cafeteria{Name: name, Coffees: []Coffee{}})
+	*response = "success"
+	return nil
+}
+
 func main() {
-	coffees = make([]Coffee, 0, 10)
-	coffees = []Coffee{{Name: "Cappucino", Price: 1.2}, {Name: "Frappucino", Price: 1.5},
-		{Name: "SomeCoffee", Price: 2.2}}
-
-	cafeteria := new(Cafeteria)
-	cafeteria.Coffees = coffees
-
+	cmanager := new(CafeManager)
+	cmanager.Cafes = make([]Cafeteria, 0, 10)
 	rpcServer := rpc.NewServer()
 
 	// custom rpc http handler paths
 	rpcServer.HandleHTTP("/rpc", "/debug")
-	rpcServer.Register(cafeteria)
+	rpcServer.Register(cmanager)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", getEnvInt("PORT", 8080)))
 	if err != nil {
@@ -77,4 +101,5 @@ func main() {
 	}
 
 	http.Serve(listener, rpcServer)
+
 }

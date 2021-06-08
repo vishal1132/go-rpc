@@ -32,16 +32,27 @@ func main() {
 		log.Fatalf("error occurred while creating rpc client %v", err)
 	}
 	var coffees []Coffee
-	var coffee = Coffee{Name: "Adding a coffee", Price: 3.4}
-	var response Coffee
+	// var coffee = Coffee{Name: "Adding a coffee", Price: 3.4}
+	// var response Coffee
 
-	cl.Call("Cafeteria.GetAllCoffees", "", &coffees)
-	fmt.Println(coffees)
+	// cl.Call("Cafeteria.GetAllCoffees", "", &coffees)
+	// fmt.Println(coffees)
 
-	cl.Call("Cafeteria.AddCoffee", coffee, &response)
-	fmt.Println(response)
+	// cl.Call("Cafeteria.AddCoffee", coffee, &response)
+	// fmt.Println(response)
 
-	cl.Call("Cafeteria.GetAllCoffees", "", &coffees)
+	// cl.Call("Cafeteria.GetAllCoffees", "", &coffees)
+
+	var k string
+	if err := cl.Call("CafeManager.NewCafe", "someName", &k); err != nil {
+		fmt.Println(err)
+	}
+	var l string
+	if err := cl.Call("CafeManager.NewCafe", "someName", &l); err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(k)
+	fmt.Println(l)
 	fmt.Println(coffees)
 
 }
